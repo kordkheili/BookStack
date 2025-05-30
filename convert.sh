@@ -1,16 +1,10 @@
 #!/bin/bash
 
-echo "Script called at $(date)" >> /tmp/weasy-debug.log
-echo "INPUT: $1" >> /tmp/weasy-debug.log
-echo "OUTPUT: $2" >> /tmp/weasy-debug.log
-echo "==== RAW INPUT BEGIN ====" >> /tmp/weasy-debug.log
-cat "$1" >> /tmp/weasy-debug.log
-echo "==== RAW INPUT END ====" >> /tmp/weasy-debug.log
-
 INPUT="$1"
 OUTPUT="$2"
 
 FONT_DIR="/var/www/bookstack/public/fonts/iranyekan"
+LETTERHEAD_PATH="/var/www/bookstack/public/websila/websila-letter-head.png"
 TMP_HTML="/tmp/bookstack_rtl.html"
 
 cat <<EOF > "$TMP_HTML"
@@ -26,11 +20,19 @@ cat <<EOF > "$TMP_HTML"
             font-weight: normal;
             font-style: normal;
         }
-
-        body {
-            font-family: 'IRANYekan', sans-serif;
-            line-height: normal;
+        
+        @page {
+            size: A4;
         }
+
+        html {
+            font-family: 'IRANYekan', sans-serif;
+        }
+
+        p,h1,h2,h3,h4,h5,h6,span,div {
+            line-height: 180% !important;
+        }
+
     </style>
 </head>
 <body>
@@ -39,4 +41,5 @@ EOF
 cat "$INPUT" >> "$TMP_HTML"
 echo "</body></html>" >> "$TMP_HTML"
 
-/opt/weasy-env/bin/weasyprint "$TMP_HTML" "$OUTPUT"
+/opt/weasy-env/bin/weasyprint "$TMP_HTML" "$OUTPUT" 2>> /tmp/weasy-debug.log
+echo "Exit code: $?" >> /tmp/weasy-debug.log
